@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stockulator</title>
+    <style>
+        /* Flexbox container to hold the form and graph side by side */
+        .container {
+            display: flex;
+            width: 100%;
+            gap: 20px; /* Space between the form and the graph */
+        }
+
+        /* Form section (selection panel) - takes 1/4 of the screen */
+        .form-container {
+            flex: 1; /* 1/4 of the width */
+            max-width: 300px; /* Max width for the form */
+            padding: 10px;
+        }
+
+        /* Graph section - takes 3/4 of the screen */
+        .graph-container {
+            flex: 3; /* 3/4 of the width */
+            padding: 10px;
+        }
+
+        /* Ensure the generated graph scales properly */
+        .graph-container img {
+            width: 100%;
+            height: auto;
+            max-height: 600px; /* Restrict the graph's height */
+            border: 1px solid #ccc; /* Add a border around the graph */
+        }
+
+        /* Style for flash messages */
+        .flash-messages {
+            color: red;
+            margin-top: 10px; /* Add space above the messages */
+        }
+    </style>
+    <script>
+        // Function to update the color options for both stock color dropdowns
+        function updateColorOptions() {
+            var color1 = document.getElementById("color1").value;
+            var color2 = document.getElementById("color2").value;
+            var color1Options = document.getElementById("color1").options;
+            var color2Options = document.getElementById("color2").options;
+
+            // Enable all colors in both dropdowns initially
+            for (var i = 0; i < color1Options.length; i++) {
+                color1Options[i].disabled = false;
+                color2Options[i].disabled = false;
+            }
+
+            // Disable the selected color from color1 in color2 dropdown
+            for (var i = 0; i < color2Options.length; i++) {
+                if (color2Options[i].value === color1) {
+                    color2Options[i].disabled = true;
+                }
+            }
+
+            // Disable the selected color from color2 in color1 dropdown
+            for (var i = 0; i < color1Options.length; i++) {
+                if (color1Options[i].value === color2) {
+                    color1Options[i].disabled = true;
+                }
+            }
+        }
+
+        // Automatically update color options on page load (if colors are pre-selected)
+        window.onload = function() {
+            updateColorOptions();
+        }
+    </script>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Form container - 1/4 column -->
+        <div class="form-container">
+            <h1>STOCKULATOR</h1>
+
+            <form method="POST">
+                <label for="stockname">Stock Name:</label>
+                <input type="text" id="stockname" name="stockname" value="{{ stockname or 'AAPL' }}" placeholder="Enter stock symbol"><br><br>
+
+                <label for="start">Start Date:</label>
+                <input type="date" id="start" name="start" value="{{ start or '2020-01-01' }}"><br><br>
+
+                <label for="end">End Date:</label>
+                <input type="date" id="end" name="end" value="{{ end or '2023-01-01' }}"><br><br>
+
+                <label for="timestep">Time Step:</label>
+                <select id="timestep" name="timestep">
+                    <option value="1 day" {% if time_step == '1 day' %}selected{% endif %}>1 Day</option>
+                    <option value="1 week" {% if time_step == '1 week' %}selected{% endif %}>1 Week</option>
+                </select><br><br>
+
+                <label for="color1">Color for Stock 1:</label>
+                <select id="color1" name="color1" onchange="updateColorOptions()">
+                    <option value="blue" {% if color1 == 'blue' %}selected{% endif %}>Blue</option>
+                    <option value="red" {% if color1 == 'red' %}selected{% endif %}>Red</option>
+                    <option value="green" {% if color1 == 'green' %}selected{% endif %}>Green</option>
+                    <option value="yellow" {% if color1 == 'yellow' %}selected{% endif %}>Yellow</option>
+                    <option value="purple" {% if color1 == 'purple' %}selected{% endif %}>Purple</option>
+                    <option value="orange" {% if color1 == 'orange' %}selected{% endif %}>Orange</option>
+                    <option value="pink" {% if color1 == 'pink' %}selected{% endif %}>Pink</option>
+                </select><br><br>
+
+                <label for="stockname2">Second Stock Name (optional):</label>
+                <input type="text" id="stockname2" name="stockname2" value="{{ stockname2 or '' }}" placeholder="Enter second stock symbol"><br><br>
+
+                <label for="color2">Color for Stock 2:</label>
+                <select id="color2" name="color2" onchange="updateColorOptions()">
+                    <option value="blue" {% if color2 == 'blue' %}selected{% endif %}>Blue</option>
+                    <option value="red" {% if color2 == 'red' or not color2 %}selected{% endif %}>Red</option>  <!-- Default to Red -->
+                    <option value="green" {% if color2 == 'green' %}selected{% endif %}>Green</option>
+                    <option value="yellow" {% if color2 == 'yellow' %}selected{% endif %}>Yellow</option>
+                    <option value="purple" {% if color2 == 'purple' %}selected{% endif %}>Purple</option>
+                    <option value="orange" {% if color2 == 'orange' %}selected{% endif %}>Orange</option>
+                    <option value="pink" {% if color2 == 'pink' %}selected{% endif %}>Pink</option>
+                </select><br><br>
+
+                <label for="bestfit">Add Line of Best Fit:</label>
+                <input type="checkbox" id="bestfit" name="bestfit" {% if bestfit_checked %}checked{% endif %}><br><br>
+
+                <button type="submit">Generate</button>
+
+                <!-- Flash messages displayed below the "Generate" button -->
+                <div class="flash-messages">
+                    {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    <ul>
+                        {% for message in messages %}
+                        <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% endwith %}
+                </div>
+            </form>
+        </div>
+
+        <!-- Graph container - 3/4 column -->
+        <div class="graph-container">
+            <!-- Display the generated graph -->
+            {% if filename %}
+            <img src="{{ url_for('static', filename=filename) }}" alt="Stock Graph">
+            {% endif %}
+        </div>
+    </div>
+
+</body>
+</html>

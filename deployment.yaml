@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stock-calculator
+  labels:
+    app: stock-calculator
+spec:
+  replicas: 1  # Number of replicas (adjust as needed)
+  selector:
+    matchLabels:
+      app: stock-calculator
+  template:
+    metadata:
+      labels:
+        app: stock-calculator
+    spec:
+      containers:
+        - name: stock-calculator
+          image: akanshapal/stock-calculator:latest  # Replace with your Flask app image
+          ports:
+            - containerPort: 5000  # Flask default port
+          env:  # Optional: Set environment variables if needed
+            - name: FLASK_ENV
+              value: "dev"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: stock-calculator-service
+  labels:
+    app: stock-calculator
+spec:
+  type: LoadBalancer  # Change to NodePort if not using cloud provider or LoadBalancer is not available
+  ports:
+    - port: 80         # Exposed port
+      targetPort: 5000 # Port the Flask app listens on inside the container
+  selector:
+    app: stock-calculator

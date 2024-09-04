@@ -3,7 +3,7 @@ pipeline {
     
     environment {
         
-        GIT_REPO = 'https://github.com/ByronTopham/Friends4Lyfe.git'
+        GIT_REPO = 'https://github.com/akanshapal2024/stock-calculator-final.git'
         DOCKER_IMAGE = 'akanshapal/stock-calculator:latest'
         KUBE_NAMESPACE = 'jenkins' // Kubernetes namespace to deploy to
         AWS_CREDENTIALS_ID = 'aws-credentials-id'

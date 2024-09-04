@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: stock-calculator
-          image: akanshapal/stock-calculator:latest  # Replace with your Flask app image
+          image: akanshapal/stock-calculator-final:latest  # Replace with your Flask app image
           ports:
             - containerPort: 5000  # Flask default port
           env:  # Optional: Set environment variables if needed
